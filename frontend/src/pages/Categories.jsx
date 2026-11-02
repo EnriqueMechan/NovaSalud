@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
-
-const ICONS = {
-  add: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  delete: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
-};
+import Icon, { categoryIcon } from "../components/Icon";
+import emptyList from "../assets/ill-empty-list.svg";
 
 export default function Categories() {
   const { user } = useAuth();
@@ -31,12 +28,24 @@ export default function Categories() {
   return (
     <div className="page">
       <div className="page-head">
-        <h2 className="page-title">Categorías</h2>
-        <p className="page-sub">Organización de productos por categoría.</p>
+        <div>
+          <h2 className="page-title">Categorías</h2>
+          <p className="page-sub">Organización de productos por categoría.</p>
+        </div>
+        <span className="badge badge-brand">
+          <Icon name="tag" size={13} />
+          <span style={{ marginLeft: 5 }}>{items.length} categoría(s)</span>
+        </span>
       </div>
 
       {isAdmin && (
         <div className="panel">
+          <div className="panel-head">
+            <h3 className="panel-title">
+              <span className="section-icon"><Icon name="plus" size={16} /></span>
+              Nueva categoría
+            </h3>
+          </div>
           <form onSubmit={submit} className="form-grid">
             <div className="field">
               <label>Nombre</label>
@@ -47,7 +56,10 @@ export default function Categories() {
               <input className="input" placeholder="Descripción" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
             </div>
             <div className="field" style={{ gridColumn: "1 / -1" }}>
-              <button className="btn btn-primary" type="submit" dangerouslySetInnerHTML={{ __html: `${ICONS.add}<span style="margin-left:6px">Agregar categoría</span>` }} />
+              <button className="btn btn-primary" type="submit">
+                <Icon name="plus" size={15} />
+                Agregar categoría
+              </button>
             </div>
           </form>
         </div>
@@ -59,15 +71,38 @@ export default function Categories() {
             <thead><tr><th>Categoría</th><th>Descripción</th>{isAdmin && <th>Acciones</th>}</tr></thead>
             <tbody>
               {items.length === 0 ? (
-                <tr><td colSpan={isAdmin ? 3 : 2} className="empty">Sin categorías registradas.</td></tr>
+                <tr>
+                  <td colSpan={isAdmin ? 3 : 2}>
+                    <div className="empty-art">
+                      <img src={emptyList} alt="" />
+                      <span className="empty-title">Sin categorías</span>
+                      <span className="empty-hint">Crea categorías para agrupar el catálogo por tipo de producto.</span>
+                    </div>
+                  </td>
+                </tr>
               ) : (
-                items.map((c) => (
-                  <tr key={c.id}>
-                    <td>{c.nombre}</td><td>{c.descripcion || "—"}</td>{isAdmin && (
-                      <td className="actions"><button className="btn btn-danger btn-sm" onClick={() => remove(c.id)} dangerouslySetInnerHTML={{ __html: `${ICONS.delete}<span style="margin-left:4px">Eliminar</span>` }} /></td>
-                    )}
-                  </tr>
-                ))
+                items.map((c) => {
+                  const cat = categoryIcon(c.nombre);
+                  return (
+                    <tr key={c.id}>
+                      <td>
+                        <div className="cell-with-thumb">
+                          <span className={`thumb thumb-${cat.tone}`}><Icon name={cat.icon} size={17} /></span>
+                          <span className="cell-title">{c.nombre}</span>
+                        </div>
+                      </td>
+                      <td>{c.descripcion || "—"}</td>
+                      {isAdmin && (
+                        <td className="actions">
+                          <button className="btn btn-danger btn-sm" onClick={() => remove(c.id)}>
+                            <Icon name="trash" size={14} />
+                            Eliminar
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

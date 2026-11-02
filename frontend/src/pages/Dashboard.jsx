@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../api";
+import Icon from "../components/Icon";
 
-const DASH_ICONS = {
-  products: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 21h22l2-6 6-12"/><path d="M19 10v5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/></svg>`,
-  low: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v4"/><path d="M21 12a9 9 0 1 1-6.24-1.76"/><circle cx="12" cy="8" r="1"/></svg>`,
-  sales: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
-  count: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-};
+const pen = new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" });
 
 const cards = [
-  { key: "totalProducts", label: "Productos", cls: "products", icon: DASH_ICONS.products, fmt: (v) => v },
-  { key: "lowStock", label: "Stock bajo", cls: "low", icon: DASH_ICONS.low, fmt: (v) => v },
-  { key: "totalSales", label: "Ventas totales", cls: "sales", icon: DASH_ICONS.sales, fmt: (v) => new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(v || 0) },
-  { key: "salesCount", label: "Nro. de ventas", cls: "count", icon: DASH_ICONS.count, fmt: (v) => v },
+  { key: "totalProducts", label: "Productos", icon: "box", tone: "thumb-brand", hint: "en catálogo" },
+  { key: "lowStock", label: "Stock bajo", icon: "alert", tone: "thumb-red", hint: "por reponer" },
+  { key: "totalSales", label: "Ventas totales", icon: "coins", tone: "thumb-violet", hint: "acumulado", fmt: (v) => pen.format(v || 0) },
+  { key: "salesCount", label: "Nro. de ventas", icon: "receipt", tone: "thumb-slate", hint: "registradas" },
+];
+
+const quickActions = [
+  { to: "/sales", icon: "cart", title: "Registrar venta", sub: "Punto de venta con stock validado" },
+  { to: "/alerts", icon: "bell", title: "Ver alertas", sub: "Productos que piden reposición" },
+  { to: "/products", icon: "box", title: "Gestionar inventario", sub: "Altas, ediciones y catálogo" },
+  { to: "/suppliers", icon: "truck", title: "Proveedores", sub: "Contactos para reponer" },
 ];
 
 export default function Dashboard() {
@@ -28,8 +32,11 @@ export default function Dashboard() {
     return (
       <div className="page">
         <div className="panel">
-          <h2 className="panel-title">Dashboard</h2>
-          <div className="empty">Cargando…</div>
+          <h2 className="panel-title"><Icon name="chart" size={18} /> Dashboard</h2>
+          <div className="empty-art">
+            <Icon name="refresh" size={26} className="spin" />
+            <span className="empty-title">Cargando indicadores…</span>
+          </div>
         </div>
       </div>
     );
@@ -44,17 +51,38 @@ export default function Dashboard() {
             Resumen del inventario y las ventas de la botica Nova Salud.
           </p>
         </div>
+        <span className="badge badge-brand">
+          <Icon name="clock" size={13} />
+          <span style={{ marginLeft: 6 }}>Hoy: {data.todaySales || 0} ventas · {pen.format(data.todayTotal || 0)}</span>
+        </span>
       </div>
+
+      {data.lowStock > 0 && (
+        <div className="alert-box warn" role="status">
+          <Icon name="alert" size={18} />
+          <span>
+            <strong>{data.lowStock}</strong> producto(s) alcanzaron su stock mínimo y
+            requieren reposición.
+          </span>
+          <Link to="/alerts" className="btn btn-sm btn-outline" style={{ marginLeft: "auto" }}>
+            Ver alertas
+            <Icon name="arrowRight" size={14} />
+          </Link>
+        </div>
+      )}
 
       <div className="stats">
         {cards.map((c) => {
           const value = data[c.key] == null ? 0 : data[c.key];
           return (
             <div className="stat-card" key={c.key}>
-              <span className={`stat-icon ${c.cls}`} dangerouslySetInnerHTML={{ __html: c.icon }} />
+              <span className={`stat-icon thumb ${c.tone}`}>
+                <Icon name={c.icon} size={22} strokeWidth={2.2} />
+              </span>
               <div>
                 <div className="stat-label">{c.label}</div>
-                <div className="stat-value">{c.fmt(value)}</div>
+                <div className="stat-value">{c.fmt ? c.fmt(value) : value}</div>
+                <div className="stat-hint">{c.hint}</div>
               </div>
             </div>
           );
@@ -63,7 +91,31 @@ export default function Dashboard() {
 
       <div className="panel">
         <div className="panel-head">
-          <h3 className="panel-title">Estado rápido</h3>
+          <h3 className="panel-title">
+            <span className="section-icon"><Icon name="trend" size={16} /></span>
+            Accesos rápidos
+          </h3>
+        </div>
+        <div className="quick-grid">
+          {quickActions.map((a) => (
+            <Link to={a.to} className="quick-item" key={a.to + a.title}>
+              <span className="thumb thumb-brand"><Icon name={a.icon} size={18} /></span>
+              <span className="quick-text">
+                <span className="quick-title">{a.title}</span>
+                <span className="quick-sub">{a.sub}</span>
+              </span>
+              <Icon name="arrowRight" size={16} className="arrow" />
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <h3 className="panel-title">
+            <span className="section-icon"><Icon name="info" size={16} /></span>
+            Estado rápido
+          </h3>
         </div>
         <p className="page-sub">
           El sistema centraliza el inventario, las ventas y la atención al

@@ -8,3 +8,6 @@ dist/
 .novasalud-frontend.log
 backend/.env
 data/
+
+# El entregable Word lleva datos personales y se mantiene solo en local
+docs/*.docx

@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
-
-const ICONS = {
-  add: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  edit: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
-  delete: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
-};
+import Icon, { categoryIcon } from "../components/Icon";
+import emptyList from "../assets/ill-empty-list.svg";
 
 export default function Products() {
   const { user } = useAuth();
@@ -66,13 +62,20 @@ export default function Products() {
         </div>
         {isAdmin && (
           <button className="btn btn-primary" onClick={() => (editing ? resetForm() : null)}>
-            {editing ? "Cancelar" : "Nuevo producto"}
+            <Icon name={editing ? "close" : "plus"} size={15} />
+            {editing ? "Cancelar edición" : "Nuevo producto"}
           </button>
         )}
       </div>
 
       {isAdmin && (
         <div className="panel">
+          <div className="panel-head">
+            <h3 className="panel-title">
+              <span className="section-icon"><Icon name={editing ? "edit" : "plus"} size={16} /></span>
+              {editing ? "Editar producto" : "Registrar producto"}
+            </h3>
+          </div>
           <form onSubmit={submit} className="form-grid">
             <div className="field">
               <label>Nombre</label>
@@ -109,8 +112,16 @@ export default function Products() {
               </select>
             </div>
             <div className="field" style={{ gridColumn: "1 / -1" }}>
-              <button className="btn btn-primary" type="submit" dangerouslySetInnerHTML={{ __html: `${ICONS.add}<span style="margin-left:6px">{editing ? "Actualizar producto" : "Agregar producto"}</span>` }} />
-              {editing && <button className="btn btn-ghost" type="button" onClick={resetForm}>Cancelar</button>}
+              <button className="btn btn-primary" type="submit">
+                <Icon name={editing ? "check" : "plus"} size={15} />
+                {editing ? "Actualizar producto" : "Agregar producto"}
+              </button>
+              {editing && (
+                <button className="btn btn-ghost" type="button" onClick={resetForm} style={{ marginLeft: 8 }}>
+                  <Icon name="close" size={15} />
+                  Descartar
+                </button>
+              )}
             </div>
           </form>
         </div>
@@ -126,25 +137,62 @@ export default function Products() {
             </thead>
             <tbody>
               {products.length === 0 ? (
-                <tr><td colSpan={isAdmin ? 8 : 7} className="empty">Sin productos registrados.</td></tr>
+                <tr>
+                  <td colSpan={isAdmin ? 8 : 7}>
+                    <div className="empty-art">
+                      <img src={emptyList} alt="" />
+                      <span className="empty-title">Aún no hay productos</span>
+                      <span className="empty-hint">Registra el primer artículo del catálogo para empezar a controlar el stock.</span>
+                    </div>
+                  </td>
+                </tr>
               ) : (
-                products.map((p) => (
-                  <tr key={p.id} className={low(p) ? "low-stock-row" : undefined}>
-                    <td>{p.nombre}</td><td>{p.codigo}</td><td>{Number(p.precio || 0).toFixed(2)}</td><td>{p.stock}</td><td>{p.stockMinimo}</td><td>{p.Category?.nombre || "—"}</td><td>{p.Supplier?.nombre || "—"}</td>
-                    {isAdmin && (
-                      <td className="actions">
-                        <button className="btn btn-ghost btn-sm" onClick={() => edit(p)} dangerouslySetInnerHTML={{ __html: `${ICONS.edit}<span style="margin-left:4px">Editar</span>` }} />
-                        <button className="btn btn-danger btn-sm" onClick={() => remove(p.id)} dangerouslySetInnerHTML={{ __html: `${ICONS.delete}<span style="margin-left:4px">Eliminar</span>` }} />
+                products.map((p) => {
+                  const cat = categoryIcon(p.Category?.nombre);
+                  return (
+                    <tr key={p.id} className={low(p) ? "low-stock-row" : undefined}>
+                      <td>
+                        <div className="cell-with-thumb">
+                          <span className={`thumb thumb-${cat.tone}`}><Icon name={cat.icon} size={17} /></span>
+                          <span>
+                            <span className="cell-title">{p.nombre}</span>
+                            {low(p) && <span className="cell-meta"> · requiere reposición</span>}
+                          </span>
+                        </div>
                       </td>
-                    )}
-                  </tr>
-                ))
+                      <td>{p.codigo}</td>
+                      <td>{Number(p.precio || 0).toFixed(2)}</td>
+                      <td>{low(p) ? <strong style={{ color: "var(--accent)" }}>{p.stock}</strong> : p.stock}</td>
+                      <td>{p.stockMinimo}</td>
+                      <td>{p.Category?.nombre || "—"}</td>
+                      <td>{p.Supplier?.nombre || "—"}</td>
+                      {isAdmin && (
+                        <td className="actions">
+                          <button className="btn btn-ghost btn-sm" onClick={() => edit(p)}>
+                            <Icon name="edit" size={14} />
+                            Editar
+                          </button>
+                          <button className="btn btn-danger btn-sm" onClick={() => remove(p.id)}>
+                            <Icon name="trash" size={14} />
+                            Eliminar
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
         {products.some(low) && (
-          <p className="page-sub"><span className="badge badge-low">Stock bajo</span> filas resaltadas: requieren reposición.</p>
+          <p className="page-sub">
+            <span className="badge badge-low">
+              <Icon name="alert" size={12} />
+              <span style={{ marginLeft: 5 }}>Stock bajo</span>
+            </span>{" "}
+            filas resaltadas: requieren reposición.
+          </p>
         )}
       </div>
     </div>

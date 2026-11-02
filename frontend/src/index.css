@@ -446,11 +446,12 @@ button {
    ============================================================ */
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 14px;
   margin-bottom: 28px;
 }
 .stat-card {
+  container-type: inline-size;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -461,14 +462,23 @@ button {
   gap: 16px;
   transition: transform 0.2s, box-shadow 0.2s;
 }
+/* el hijo de texto de un flex no puede encoger por debajo de su contenido
+   salvo que le fijemos min-width:0; sin eso, un importe largo desborda la tarjeta */
+.stat-card > div {
+  min-width: 0;
+}
 .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow);
 }
 .stat-card .stat-value {
-  font-size: 1.85rem;
+  font-size: clamp(1.05rem, 11cqi, 1.85rem);
   font-weight: 800;
   color: var(--ink);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .stat-card .stat-label {
   font-size: 0.8rem;
@@ -491,6 +501,12 @@ button {
 .stat-icon.sales { background: #E0E7FF; color: #4338CA; }
 .stat-icon.count { background: #F1F5F9; color: var(--muted); }
 
+@keyframes ns-spin {
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: ns-spin 1.1s linear infinite;
+}
 .alert-box {
   display: flex;
   align-items: flex-start;
@@ -600,10 +616,254 @@ button {
     padding: 16px 18px;
     gap: 14px;
   }
-  .stat-value {
-    font-size: 1.6rem;
-  }
   .login-card {
     padding: 28px 24px;
   }
+  .login-split {
+    grid-template-columns: 1fr;
+  }
+  .login-art {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Novedades visuales: iconos, miniaturas e ilustraciones
+   ============================================================ */
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: block;
+  box-shadow: 0 4px 6px -1px rgb(15 118 110 / 0.35);
+}
+
+/* enlace activo en la barra de navegacion */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--brand);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.18s ease;
+}
+.nav-link.active::after {
+  transform: scaleX(1);
+}
+.nav-link.active {
+  color: var(--brand-text);
+  background: var(--brand-light);
+}
+
+/* miniatura de categoria en tablas y tarjetas */
+.thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.thumb-brand { background: var(--brand-light); color: var(--brand-dark); }
+.thumb-amber { background: #FEF3C7; color: #B45309; }
+.thumb-sky   { background: #E0F2FE; color: #0369A1; }
+.thumb-violet{ background: #E0E7FF; color: #4338CA; }
+.thumb-slate { background: #F1F5F9; color: var(--muted); }
+.thumb-red   { background: var(--accent-light); color: var(--accent-dark); }
+.thumb-green { background: var(--success-light); color: var(--success-text); }
+
+.cell-with-thumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cell-with-thumb .cell-title {
+  color: var(--ink);
+  font-weight: 600;
+}
+.cell-with-thumb .cell-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* ilustraciones de estado vacio */
+.empty-art {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 24px;
+  border-radius: var(--radius-sm);
+  background: #F8FAFC;
+  border: 1px dashed var(--border);
+  color: var(--muted);
+  text-align: center;
+}
+.empty-art img {
+  width: 150px;
+  height: auto;
+  max-width: 60%;
+}
+.empty-art .empty-title {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+.empty-art .empty-hint {
+  font-size: 0.82rem;
+  max-width: 42ch;
+}
+
+/* accesos rapidos del dashboard */
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+.quick-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--body);
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+}
+.quick-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  border-color: var(--brand-light);
+  color: var(--body);
+  text-decoration: none;
+}
+.quick-item .quick-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.quick-item .quick-title {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+.quick-item .quick-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.quick-item .arrow {
+  margin-left: auto;
+  color: var(--brand);
+  opacity: 0.55;
+  transition: transform 0.18s, opacity 0.18s;
+}
+.quick-item:hover .arrow {
+  transform: translateX(3px);
+  opacity: 1;
+}
+
+/* titulo de seccion con icono */
+.section-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--brand-light);
+  color: var(--brand-dark);
+  flex-shrink: 0;
+}
+
+/* lista de datos de contacto con icono */
+.contact-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--body);
+  font-size: 0.84rem;
+}
+.contact-line + .contact-line {
+  margin-top: 2px;
+}
+.contact-line svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* login con panel ilustrado */
+.login-split {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  align-items: center;
+  gap: 34px;
+  width: 100%;
+  max-width: 940px;
+}
+.login-art {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.login-art img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.login-feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.login-feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.86rem;
+  color: var(--body);
+}
+.login-feature-list svg {
+  color: var(--brand);
+  flex-shrink: 0;
+}
+.login-shell {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* campo con icono dentro del input */
+.input-icon {
+  position: relative;
+}
+.input-icon svg {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+.input-icon .input {
+  padding-left: 36px;
+}
+
+/* tira de indicadores del dashboard */
+.stat-card .stat-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 2px;
 }

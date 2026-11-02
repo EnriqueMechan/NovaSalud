@@ -1,12 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-
-const ICONS = {
-  add: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  delete: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
-  minus: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-  plus: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
-};
+import Icon, { categoryIcon } from "../components/Icon";
+import emptyCart from "../assets/ill-empty-cart.svg";
+import noSales from "../assets/ill-no-sales.svg";
 
 export default function Sales() {
   const [products, setProducts] = useState([]);
@@ -67,7 +63,12 @@ export default function Sales() {
       </div>
 
       <div className="panel">
-        <div className="panel-head"><h3 className="panel-title">Nueva venta</h3></div>
+        <div className="panel-head">
+          <h3 className="panel-title">
+            <span className="section-icon"><Icon name="cart" size={16} /></span>
+            Nueva venta
+          </h3>
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, alignItems: "end" }}>
           <div className="field">
             <label>Producto</label>
@@ -85,30 +86,51 @@ export default function Sales() {
             <input className="input" placeholder="Nombre del cliente" value={cliente} onChange={(e) => setCliente(e.target.value)} />
           </div>
           <div className="field">
-            <button className="btn btn-primary" type="button" onClick={addToCart} dangerouslySetInnerHTML={{ __html: `${ICONS.add}<span style="margin-left:6px">Agregar al carrito</span>` }} />
+            <button className="btn btn-primary" type="button" onClick={addToCart}>
+              <Icon name="plus" size={15} />
+              Agregar al carrito
+            </button>
           </div>
         </div>
       </div>
 
       <div className="panel">
-        <div className="panel-head"><h3 className="panel-title">Carrito</h3></div>
+        <div className="panel-head">
+          <h3 className="panel-title">
+            <span className="section-icon"><Icon name="box" size={16} /></span>
+            Carrito
+            {cart.length > 0 && <span className="badge badge-brand" style={{ marginLeft: 8 }}>{cart.length} ítem(s)</span>}
+          </h3>
+        </div>
         {cart.length === 0 ? (
-          <div className="empty">El carrito está vacío.</div>
+          <div className="empty-art">
+            <img src={emptyCart} alt="" />
+            <span className="empty-title">El carrito está vacío</span>
+            <span className="empty-hint">Elige un producto y una cantidad arriba para armar la venta.</span>
+          </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {cart.map((c) => {
               const p = products.find((pd) => pd.id === c.productId);
               const price = p ? Number(p.precio || 0) : 0;
+              const cat = categoryIcon(p?.Category?.nombre);
               return (
-                <div key={c.productId} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 10px", border: "1px solid var(--border)", borderRadius: "8px", background: "#fff" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}><strong>{p ? p.nombre : id}</strong></div>
+                <div key={c.productId} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", border: "1px solid var(--border)", borderRadius: "8px", background: "#fff" }}>
+                  <span className={`thumb thumb-${cat.tone}`}><Icon name={cat.icon} size={16} /></span>
+                  <strong>{p ? p.nombre : c.productId}</strong>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}>
-                    <button className="btn btn-ghost btn-sm" onClick={() => changeQty(c.productId, -1)} dangerouslySetInnerHTML={{ __html: ICONS.minus }} />
+                    <button className="btn btn-ghost btn-sm" onClick={() => changeQty(c.productId, -1)} aria-label="Restar unidad">
+                      <Icon name="minus" size={13} />
+                    </button>
                     <span style={{ minWidth: 22, textAlign: "center" }}>{c.cantidad}</span>
-                    <button className="btn btn-ghost btn-sm" onClick={() => changeQty(c.productId, 1)} dangerouslySetInnerHTML={{ __html: ICONS.plus }} />
-                    <button className="btn btn-danger btn-sm" onClick={() => removeFromCart(c.productId)} dangerouslySetInnerHTML={{ __html: ICONS.delete }} />
+                    <button className="btn btn-ghost btn-sm" onClick={() => changeQty(c.productId, 1)} aria-label="Sumar unidad">
+                      <Icon name="plus" size={13} />
+                    </button>
+                    <button className="btn btn-danger btn-sm" onClick={() => removeFromCart(c.productId)} aria-label="Quitar del carrito">
+                      <Icon name="trash" size={13} />
+                    </button>
                   </div>
-                  <span>{new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(price * c.cantidad)}</span>
+                  <span style={{ minWidth: 74, textAlign: "right" }}>{new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(price * c.cantidad)}</span>
                 </div>
               );
             })}
@@ -117,21 +139,40 @@ export default function Sales() {
               <span style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--brand)" }}>{new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(cartTotal)}</span>
             </div>
             <div style={{ display: "flex", gap: 8 }}>
-              <button className="btn btn-primary" onClick={submitSale} disabled={!cart.length}>Registrar venta</button>
-              <button className="btn btn-outline" type="button" onClick={() => setCart([])}>Vaciar carrito</button>
+              <button className="btn btn-primary" onClick={submitSale} disabled={!cart.length}>
+                <Icon name="check" size={15} />
+                Registrar venta
+              </button>
+              <button className="btn btn-outline" type="button" onClick={() => setCart([])}>
+                <Icon name="close" size={15} />
+                Vaciar carrito
+              </button>
             </div>
           </div>
         )}
       </div>
 
       <div className="panel">
-        <div className="panel-head"><h3 className="panel-title">Historial de ventas</h3></div>
+        <div className="panel-head">
+          <h3 className="panel-title">
+            <span className="section-icon"><Icon name="receipt" size={16} /></span>
+            Historial de ventas
+          </h3>
+        </div>
         <div className="table-wrap">
           <table className="table">
             <thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Items</th></tr></thead>
             <tbody>
               {sales.length === 0 ? (
-                <tr><td colSpan="5" className="empty">Sin ventas registradas.</td></tr>
+                <tr>
+                  <td colSpan="5">
+                    <div className="empty-art">
+                      <img src={noSales} alt="" />
+                      <span className="empty-title">Sin ventas registradas</span>
+                      <span className="empty-hint">Las ventas aparecerán aquí con su detalle de ítems y su vendedor.</span>
+                    </div>
+                  </td>
+                </tr>
               ) : (
                 sales.map((s) => (
                   <tr key={s.id}>

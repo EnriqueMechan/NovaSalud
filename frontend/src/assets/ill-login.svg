@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 300" width="360" height="300" role="img" aria-label="Botica Nova Salud">
+  <defs>
+    <linearGradient id="lgSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#CCFBF1"/>
+      <stop offset="1" stop-color="#E7EEF6"/>
+    </linearGradient>
+    <linearGradient id="lgBrand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14B8A6"/>
+      <stop offset="1" stop-color="#115E59"/>
+    </linearGradient>
+    <linearGradient id="lgGlass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5EEAD4"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="360" height="300" rx="22" fill="url(#lgSky)"/>
+  <circle cx="300" cy="52" r="34" fill="#fff" opacity="0.55"/>
+  <circle cx="58" cy="248" r="46" fill="#fff" opacity="0.4"/>
+
+  <!-- estanteria -->
+  <rect x="44" y="52" width="180" height="128" rx="10" fill="#fff" opacity="0.82"/>
+  <rect x="44" y="96" width="180" height="3" fill="#CBD5E1"/>
+  <rect x="44" y="140" width="180" height="3" fill="#CBD5E1"/>
+
+  <!-- frascos fila 1 -->
+  <g>
+    <rect x="58" y="64" width="22" height="30" rx="4" fill="url(#lgGlass)"/>
+    <rect x="63" y="59" width="12" height="7" rx="2" fill="#115E59"/>
+    <rect x="90" y="70" width="20" height="24" rx="4" fill="#0F766E" opacity="0.75"/>
+    <rect x="94" y="65" width="12" height="7" rx="2" fill="#134E4A"/>
+    <rect x="120" y="62" width="24" height="32" rx="4" fill="#A7F3D0"/>
+    <rect x="125" y="57" width="14" height="7" rx="2" fill="#10B981"/>
+    <rect x="154" y="68" width="18" height="26" rx="4" fill="url(#lgGlass)" opacity="0.85"/>
+    <rect x="181" y="64" width="26" height="30" rx="4" fill="#fff" stroke="#0F766E" stroke-width="2"/>
+    <path d="M191 74h6v6h6v6h-6v6h-6v-6h-6v-6h6z" fill="#0F766E"/>
+  </g>
+
+  <!-- frascos fila 2 -->
+  <g>
+    <rect x="60" y="106" width="26" height="30" rx="4" fill="#FDECEA" stroke="#B91C1C" stroke-width="2"/>
+    <path d="M67 120h12M73 114v12" stroke="#B91C1C" stroke-width="2.4" stroke-linecap="round"/>
+    <rect x="96" y="112" width="20" height="24" rx="4" fill="url(#lgGlass)" opacity="0.8"/>
+    <rect x="126" y="108" width="22" height="28" rx="4" fill="#0F766E" opacity="0.7"/>
+    <rect x="158" y="112" width="18" height="24" rx="9" fill="#fff" stroke="#115E59" stroke-width="2"/>
+    <path d="M158 124h18" stroke="#115E59" stroke-width="2"/>
+    <rect x="186" y="106" width="24" height="30" rx="4" fill="#FEF3C7" stroke="#B45309" stroke-width="2"/>
+  </g>
+
+  <!-- frascos fila 3 -->
+  <g opacity="0.9">
+    <rect x="58" y="150" width="30" height="24" rx="4" fill="#E0E7FF"/>
+    <rect x="96" y="148" width="20" height="26" rx="4" fill="url(#lgGlass)" opacity="0.7"/>
+    <rect x="124" y="152" width="26" height="22" rx="4" fill="#fff" stroke="#0F766E" stroke-width="2"/>
+    <rect x="160" y="148" width="16" height="26" rx="8" fill="#A7F3D0"/>
+    <rect x="184" y="150" width="28" height="24" rx="4" fill="#CCFBF1"/>
+  </g>
+
+  <!-- mortero -->
+  <path d="M236 196h76a38 38 0 0 1-76 0z" fill="url(#lgBrand)"/>
+  <path d="M232 190h84v10h-84z" rx="4" fill="#134E4A"/>
+  <ellipse cx="274" cy="190" rx="42" ry="7" fill="#0B4B47"/>
+  <path d="M300 150l16 34-12 6-16-34z" fill="#B45309"/>
+  <circle cx="299" cy="147" r="7" fill="#D97706"/>
+
+  <!-- comprimidos flotantes -->
+  <g>
+    <circle cx="252" cy="112" r="13" fill="#fff" stroke="#0F766E" stroke-width="2.4"/>
+    <path d="M252 105v14" stroke="#0F766E" stroke-width="2"/>
+    <rect x="278" y="96" width="34" height="17" rx="8.5" transform="rotate(-24 295 104)" fill="#14B8A6"/>
+    <path d="M285.5 108.5l14-6" stroke="#fff" stroke-width="2" stroke-linecap="round" transform="rotate(-24 295 104)"/>
+    <rect x="300" y="132" width="30" height="15" rx="7.5" transform="rotate(14 315 139)" fill="#B91C1C" opacity="0.85"/>
+    <path d="M306 139h18" stroke="#fff" stroke-width="2" stroke-linecap="round" transform="rotate(14 315 139)"/>
+  </g>
+
+  <!-- insignia de cruz -->
+  <g>
+    <circle cx="88" cy="228" r="26" fill="#fff"/>
+    <circle cx="88" cy="228" r="26" fill="none" stroke="#0F766E" stroke-width="2.4"/>
+    <path d="M82 214h12v10h10v12H94v10H82v-10H72v-12h10z" fill="#0F766E"/>
+  </g>
+
+  <!-- contador / caja -->
+  <g>
+    <rect x="132" y="236" width="104" height="40" rx="8" fill="#fff" opacity="0.9"/>
+    <rect x="142" y="248" width="58" height="5" rx="2.5" fill="#CBD5E1"/>
+    <rect x="142" y="260" width="38" height="5" rx="2.5" fill="#E2E8F0"/>
+    <circle cx="216" cy="256" r="12" fill="#10B981"/>
+    <path d="M210.5 256l3.5 3.5 7-7" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
