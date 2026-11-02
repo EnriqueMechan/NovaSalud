@@ -9,33 +9,107 @@ export default function Categories() {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
 
-  const load = async () => { const r = await api.get("/categories"); setItems(r.data); };
-  useEffect(() => { load(); }, []);
+  const load = async () => {
+    const r = await api.get("/categories");
+    setItems(r.data);
+  };
+  useEffect(() => {
+    load();
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
     await api.post("/categories", { nombre, descripcion });
-    setNombre(""); setDescripcion("");
+    setNombre("");
+    setDescripcion("");
     load();
   };
 
-  const remove = async (id) => { await api.delete(`/categories/${id}`); load(); };
+  const remove = async (id) => {
+    if (!confirm("¿Eliminar categoría?")) return;
+    await api.delete(`/categories/${id}`);
+    load();
+  };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Categorias</h2>
+    <div className="page">
+      <div className="page-head">
+        <h2 className="page-title">Categorías</h2>
+        <p className="page-sub">
+          Organización de productos por categoría.
+        </p>
+      </div>
+
       {isAdmin && (
-        <form onSubmit={submit} style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          <input placeholder="Nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-          <input placeholder="Descripcion" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
-          <button type="submit">Agregar</button>
-        </form>
+        <div className="panel">
+          <form onSubmit={submit} className="form-grid">
+            <div className="field">
+              <label>Nombre</label>
+              <input
+                className="input"
+                placeholder="Nombre de la categoría"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                required
+              />
+            </div>
+            <div className="field">
+              <label>Descripción</label>
+              <input
+                className="input"
+                placeholder="Descripción"
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+              />
+            </div>
+            <div className="field" style={{ gridColumn: "1 / -1" }}>
+              <button className="btn btn-primary" type="submit">
+                Agregar categoría
+              </button>
+            </div>
+          </form>
+        </div>
       )}
-      <ul>
-        {items.map((c) => (
-          <li key={c.id}>{c.nombre} - {c.descripcion} {isAdmin && <button onClick={() => remove(c.id)}>Eliminar</button>}</li>
-        ))}
-      </ul>
+
+      <div className="panel">
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Categoría</th>
+                <th>Descripción</th>
+                {isAdmin && <th>Acciones</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {items.length === 0 ? (
+                <tr>
+                  <td colSpan={isAdmin ? 3 : 2} className="empty">
+                    Sin categorías registradas.
+                  </td>
+                </tr>
+              ) : (
+                items.map((c) => (
+                  <tr key={c.id}>
+                    <td>{c.nombre}</td>
+                    <td>{c.descripcion || "—"}</td>
+                    {isAdmin && (
+                      <td className="actions">
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => remove(c.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

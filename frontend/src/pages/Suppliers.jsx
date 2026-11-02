@@ -6,10 +6,21 @@ export default function Suppliers() {
   const { user } = useAuth();
   const isAdmin = user?.rol === "admin";
   const [items, setItems] = useState([]);
-  const [form, setForm] = useState({ nombre: "", contacto: "", telefono: "", email: "", direccion: "" });
+  const [form, setForm] = useState({
+    nombre: "",
+    contacto: "",
+    telefono: "",
+    email: "",
+    direccion: "",
+  });
 
-  const load = async () => { const r = await api.get("/suppliers"); setItems(r.data); };
-  useEffect(() => { load(); }, []);
+  const load = async () => {
+    const r = await api.get("/suppliers");
+    setItems(r.data);
+  };
+  useEffect(() => {
+    load();
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -18,29 +29,125 @@ export default function Suppliers() {
     load();
   };
 
-  const remove = async (id) => { await api.delete(`/suppliers/${id}`); load(); };
+  const remove = async (id) => {
+    if (!confirm("¿Eliminar proveedor?")) return;
+    await api.delete(`/suppliers/${id}`);
+    load();
+  };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Proveedores</h2>
+    <div className="page">
+      <div className="page-head">
+        <h2 className="page-title">Proveedores</h2>
+        <p className="page-sub">
+          Gestión de proveedores de la botica.
+        </p>
+      </div>
+
       {isAdmin && (
-        <form onSubmit={submit} style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-          <input placeholder="Nombre" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} required />
-          <input placeholder="Contacto" value={form.contacto} onChange={(e) => setForm({ ...form, contacto: e.target.value })} />
-          <input placeholder="Telefono" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })} />
-          <input placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          <input placeholder="Direccion" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })} />
-          <button type="submit">Agregar</button>
-        </form>
+        <div className="panel">
+          <form onSubmit={submit} className="form-grid">
+            <div className="field">
+              <label>Nombre</label>
+              <input
+                className="input"
+                placeholder="Nombre del proveedor"
+                value={form.nombre}
+                onChange={(e) => setForm({ ...form, nombre: e.target.value })}
+                required
+              />
+            </div>
+            <div className="field">
+              <label>Contacto</label>
+              <input
+                className="input"
+                placeholder="Persona de contacto"
+                value={form.contacto}
+                onChange={(e) => setForm({ ...form, contacto: e.target.value })}
+              />
+            </div>
+            <div className="field">
+              <label>Teléfono</label>
+              <input
+                className="input"
+                placeholder="Teléfono"
+                value={form.telefono}
+                onChange={(e) => setForm({ ...form, telefono: e.target.value })}
+              />
+            </div>
+            <div className="field">
+              <label>Email</label>
+              <input
+                className="input"
+                type="email"
+                placeholder="correo@ejemplo.com"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+            <div className="field">
+              <label>Dirección</label>
+              <input
+                className="input"
+                placeholder="Dirección"
+                value={form.direccion}
+                onChange={(e) => setForm({ ...form, direccion: e.target.value })}
+              />
+            </div>
+            <div className="field" style={{ gridColumn: "1 / -1" }}>
+              <button className="btn btn-primary" type="submit">
+                Agregar proveedor
+              </button>
+            </div>
+          </form>
+        </div>
       )}
-      <table border="1" cellPadding="6" style={{ borderCollapse: "collapse", width: "100%" }}>
-        <thead><tr><th>Nombre</th><th>Contacto</th><th>Telefono</th><th>Email</th><th>Direccion</th>{isAdmin && <th>Acciones</th>}</tr></thead>
-        <tbody>
-          {items.map((s) => (
-            <tr key={s.id}><td>{s.nombre}</td><td>{s.contacto}</td><td>{s.telefono}</td><td>{s.email}</td><td>{s.direccion}</td>{isAdmin && <td><button onClick={() => remove(s.id)}>Eliminar</button></td>}</tr>
-          ))}
-        </tbody>
-      </table>
+
+      <div className="panel">
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Contacto</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th>Dirección</th>
+                {isAdmin && <th>Acciones</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {items.length === 0 ? (
+                <tr>
+                  <td colSpan={isAdmin ? 6 : 5} className="empty">
+                    Sin proveedores registrados.
+                  </td>
+                </tr>
+              ) : (
+                items.map((s) => (
+                  <tr key={s.id}>
+                    <td>{s.nombre}</td>
+                    <td>{s.contacto || "—"}</td>
+                    <td>{s.telefono || "—"}</td>
+                    <td>{s.email || "—"}</td>
+                    <td>{s.direccion || "—"}</td>
+                    {isAdmin && (
+                      <td className="actions">
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => remove(s.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

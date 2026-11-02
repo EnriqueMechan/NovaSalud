@@ -10,79 +10,264 @@ export default function Sales() {
   const [qty, setQty] = useState(1);
 
   const load = async () => {
-    const [p, s] = await Promise.all([api.get("/products"), api.get("/sales")]);
+    const [p, s] = await Promise.all([
+      api.get("/products"),
+      api.get("/sales"),
+    ]);
     setProducts(p.data);
     setSales(s.data);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const addToCart = () => {
     if (!selectedProduct) return;
-    const existing = cart.find((c) => c.productId === Number(selectedProduct));
+    const pid = Number(selectedProduct);
+    const product = products.find((p) => p.id === pid);
+    if (!product) return;
+    const existing = cart.find((c) => c.productId === pid);
     if (existing) {
-      setCart(cart.map((c) => c.productId === Number(selectedProduct) ? { ...c, cantidad: c.cantidad + Number(qty) } : c));
+      if (existing.cantidad + Number(qty) > product.stock) {
+        return alert("Stock insuficiente");
+      }
+      setCart(
+        cart.map((c) =>
+          c.productId === pid
+            ? { ...c, cantidad: c.cantidad + Number(qty) }
+            : c
+        )
+      );
     } else {
-      setCart([...cart, { productId: Number(selectedProduct), cantidad: Number(qty) }]);
+      if (Number(qty) > product.stock) {
+        return alert("Stock insuficiente");
+      }
+      setCart([...cart, { productId: pid, cantidad: Number(qty) }]);
     }
     setQty(1);
   };
 
-  const removeFromCart = (pid) => setCart(cart.filter((c) => c.productId !== pid));
+  const changeQty = (pid, delta) => {
+    setCart((prev) =>
+      prev
+        .map((c) =>
+          c.productId === pid
+            ? { ...c, cantidad: Math.max(0, c.cantidad + delta) }
+            : c
+        )
+        .filter((c) => c.cantidad > 0)
+    );
+  };
+
+  const removeFromCart = (pid) =>
+    setCart(cart.filter((c) => c.productId !== pid));
+
+  const cartTotal = cart.reduce(
+    (sum, c) =>
+      sum +
+      (products.find((p) => p.id === c.productId)?.precio || 0) *
+        c.cantidad,
+    0
+  );
 
   const submitSale = async () => {
-    if (!cart.length) return alert("Carrito vacio");
+    if (!cart.length) return alert("Carrito vacío");
     try {
       await api.post("/sales", { cliente, items: cart });
       setCart([]);
       setCliente("");
+      setQty(1);
       load();
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      alert(err.response?.data?.message || "Error al registrar la venta");
     }
   };
 
   const productName = (id) => products.find((p) => p.id === id)?.nombre || id;
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Ventas</h2>
-      <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-        <select value={selectedProduct} onChange={(e) => setSelectedProduct(e.target.value)}>
-          <option value="">Producto</option>
-          {products.map((p) => <option key={p.id} value={p.id}>{p.nombre} (stock {p.stock})</option>)}
-        </select>
-        <input type="number" min="1" value={qty} onChange={(e) => setQty(e.target.value)} style={{ width: 80 }} />
-        <button onClick={addToCart}>Agregar</button>
-        <input placeholder="Cliente" value={cliente} onChange={(e) => setCliente(e.target.value)} />
-        <button onClick={submitSale}>Registrar venta</button>
+    <div className="page">
+      <div className="page-head">
+        <h2 className="page-title">Ventas</h2>
+        <p className="page-sub">
+          Registro de ventas con actualización automática de stock.
+        </p>
       </div>
 
-      <h3>Carrito</h3>
-      <ul>
-        {cart.map((c) => (
-          <li key={c.productId}>
-            {productName(c.productId)} x {c.cantidad}
-            <button onClick={() => removeFromCart(c.productId)} style={{ marginLeft: 8 }}>x</button>
-          </li>
-        ))}
-      </ul>
+      <div className="panel">
+        <div className="panel-head">
+          <h3 className="panel-title">Nueva venta</h3>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, alignItems: "end" }}>
+          <div className="field">
+            <label>Producto</label>
+            <select
+              className="select"
+              value={selectedProduct}
+              onChange={(e) => setSelectedProduct(e.target.value)}
+            >
+              <option value="">Seleccionar producto</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.nombre} (stock {p.stock})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label>Cantidad</label>
+            <input
+              className="input"
+              type="number"
+              min="1"
+              value={qty}
+              onChange={(e) => setQty(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label>Cliente</label>
+            <input
+              className="input"
+              placeholder="Nombre del cliente"
+              value={cliente}
+              onChange={(e) => setCliente(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={addToCart}
+            >
+              Agregar al carrito
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <h3>Historial de ventas</h3>
-      <table border="1" cellPadding="6" style={{ borderCollapse: "collapse", width: "100%" }}>
-        <thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Total</th><th>Items</th></tr></thead>
-        <tbody>
-          {sales.map((s) => (
-            <tr key={s.id}>
-              <td>{s.id}</td>
-              <td>{new Date(s.fecha).toLocaleString()}</td>
-              <td>{s.cliente || "-"}</td>
-              <td>{Number(s.total).toFixed(2)}</td>
-              <td>{s.items?.map((i) => `${i.Product?.nombre} x${i.cantidad}`).join(", ")}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="panel">
+        <div className="panel-head">
+          <h3 className="panel-title">Carrito</h3>
+        </div>
+        {cart.length === 0 ? (
+          <div className="empty">El carrito está vacío.</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {cart.map((c) => {
+              const p = products.find((pd) => pd.id === c.productId);
+              const price = p ? Number(p.precio || 0) : 0;
+              return (
+                <div
+                  key={c.productId}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "8px 10px",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                    background: "#fff",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <strong>{p ? p.nombre : id}</strong>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => changeQty(c.productId, -1)}
+                    >
+                      −
+                    </button>
+                    <span style={{ minWidth: 22, textAlign: "center" }}>
+                      {c.cantidad}
+                    </span>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => changeQty(c.productId, 1)}
+                    >
+                      +
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => removeFromCart(c.productId)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <span>{new Intl.NumberFormat("es-PE", {
+                    style: "currency",
+                    currency: "PEN",
+                  }).format(price * c.cantidad)}</span>
+                </div>
+              );
+            })}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--border)" }}>
+              <span style={{ fontWeight: 700, color: "var(--ink)", marginRight: 8 }}>
+                Total:
+              </span>
+              <span style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--brand)" }}>
+                {new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(cartTotal)}
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                className="btn btn-primary"
+                onClick={submitSale}
+                disabled={!cart.length}
+              >
+                Registrar venta
+              </button>
+              <button className="btn btn-outline" type="button" onClick={() => setCart([])}>
+                Vaciar carrito
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="panel">
+        <div className="panel-head">
+          <h3 className="panel-title">Historial de ventas</h3>
+        </div>
+        <div className="table-wrap">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>Items</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sales.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="empty">
+                    Sin ventas registradas.
+                  </td>
+                </tr>
+              ) : (
+                sales.map((s) => (
+                  <tr key={s.id}>
+                    <td>#{s.id}</td>
+                    <td>{new Date(s.fecha).toLocaleString("es-PE")}</td>
+                    <td>{s.cliente || "—"}</td>
+                    <td>{Number(s.total || 0).toFixed(2)}</td>
+                    <td>
+                      {s.items
+                        ?.map((i) => `${i.Product?.nombre || "?"} x${i.cantidad}`)
+                        .join(", ")}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

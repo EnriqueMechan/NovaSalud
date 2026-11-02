@@ -3,4 +3,8 @@ dist/
 .env
 *.sqlite
 *.sqlite-journal
+.novasalud.pids
+.novasalud-backend.log
+.novasalud-frontend.log
+backend/.env
 data/

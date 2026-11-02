@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "dev": "node src/index.js",
     "seed": "node src/seeders/seed.js"
   },
   "keywords": ["botica", "inventario", "ventas", "fullstack"],
@@ -20,11 +20,6 @@
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "mysql2": "^3.11.0",
-    "sequelize": "^6.37.3",
-    "sqlite3": "^5.1.7"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.4"
+    "sequelize": "^6.37.3"
   }
 }
