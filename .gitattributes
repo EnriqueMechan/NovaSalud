@@ -1,0 +1,50 @@
+# Normaliza finales de linea para que el repo se vea igual
+# sin depender de core.autocrlf de cada maquina.
+
+# Tratamiento automatico: texto al indice en LF, binarios sin tocar
+* text=auto
+
+# --- Scripts de shell: SIEMPRE LF ---
+# Con CRLF, bash falla al ejecutarlos ("$'\r': command not found")
+*.sh    text eol=lf
+*.bash  text eol=lf
+
+# --- Scripts de Windows: CRLF ---
+# cmd.exe es delicado con los saltos de linea
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# --- Codigo de la aplicacion ---
+*.js    text eol=lf
+*.jsx   text eol=lf
+*.mjs   text eol=lf
+*.cjs   text eol=lf
+*.json  text eol=lf
+*.css   text eol=lf
+*.html  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.md    text eol=lf
+*.py    text eol=lf
+
+# SVG es XML de texto: conviene que sea diffiable
+*.svg   text eol=lf
+
+# --- Binarios: Git no debe intentar convertirlos ni mergearlos ---
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.pdf    binary
+*.docx   binary
+*.xlsx   binary
+*.pptx   binary
+*.sqlite binary
+*.db     binary
+*.woff   binary
+*.woff2  binary
+
+# --- Generados: no tienen sentido en un diff ---
+package-lock.json merge=binary linguist-generated=true
