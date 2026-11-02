@@ -8,7 +8,12 @@
     "dev": "node src/index.js",
     "seed": "node src/seeders/seed.js"
   },
-  "keywords": ["botica", "inventario", "ventas", "fullstack"],
+  "keywords": [
+    "botica",
+    "inventario",
+    "ventas",
+    "fullstack"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -21,5 +26,10 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
+    "mysql2": "^3.24.6",
+    "nodemon": "^3.1.14",
+    "sqlite3": "^6.0.1"
   }
 }
