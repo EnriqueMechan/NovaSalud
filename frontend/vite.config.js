@@ -5,7 +5,8 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
-    allowedHosts: true,
+    // Solo loopback: el backend se llama con localhost:4000 fijo en src/api.js,
+    // asi que exponer el dev server en la red no habilita acceso desde otros equipos.
+    host: 'localhost',
   },
 })
