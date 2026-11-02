@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api";
 import Icon from "../components/Icon";
+import pharmacyHero from "../assets/pharmacy-hero.jpg";
 
 const pen = new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" });
 
@@ -70,6 +71,15 @@ export default function Dashboard() {
           </Link>
         </div>
       )}
+
+      <section className="dashboard-hero" aria-label="Bienvenida a Nova Salud">
+        <img src={pharmacyHero} alt="Productos de farmacia sobre un mostrador iluminado" />
+        <div className="dashboard-hero-copy">
+          <span className="hero-eyebrow"><Icon name="shield" size={14} /> Tu botica, en buenas manos</span>
+          <h2>Todo en orden.<br />Todo bajo control.</h2>
+          <p>Inventario y ventas, reunidos en un solo lugar para ayudarte a cuidar mejor.</p>
+        </div>
+      </section>
 
       <div className="stats">
         {cards.map((c) => {
