@@ -20,15 +20,50 @@ export default function Login() {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "80px auto", padding: 24, border: "1px solid #ddd", borderRadius: 8 }}>
-      <h2>Iniciar sesion - Nova Salud</h2>
-      <form onSubmit={submit}>
-        <div><input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" style={{ width: "100%", margin: "8px 0", padding: 8 }} /></div>
-        <div><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" style={{ width: "100%", margin: "8px 0", padding: 8 }} /></div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <button type="submit" style={{ padding: "8px 16px" }}>Entrar</button>
-      </form>
-      <p style={{ fontSize: 12, color: "#666" }}>admin@novasalud.com / admin123</p>
+    <div className="login-wrap">
+      <div className="login-card">
+        <div className="brand">
+          <span className="mark">NS</span> Nova Salud
+        </div>
+        <h2>Iniciar sesión</h2>
+        <form onSubmit={submit}>
+          <div className="field">
+            <label>Correo electrónico</label>
+            <input
+              className="input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@novasalud.com"
+              required
+            />
+          </div>
+          <div className="field">
+            <label>Contraseña</label>
+            <input
+              className="input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          {error && (
+            <div className="alert-box warn" role="alert">
+              <strong>Error:</strong> {error}
+            </div>
+          )}
+          <div className="login-actions">
+            <button className="btn btn-primary" type="submit">
+              Entrar
+            </button>
+          </div>
+        </form>
+        <p className="login-hint">
+          Prueba con: <code>admin@novasalud.com / admin123</code> o{" "}
+          <code>vendedor@novasalud.com / vendedor123</code>
+        </p>
+      </div>
     </div>
   );
 }
