@@ -6,4 +6,5 @@ dist/
 .novasalud.pids
 .novasalud-backend.log
 .novasalud-frontend.log
+backend/.env
 data/
